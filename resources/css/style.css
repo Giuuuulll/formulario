@@ -1,0 +1,90 @@
+/* Fondo general */
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0a3d62, #3c6382);
+    margin: 0;
+    padding: 0;
+}
+
+/* Caja del formulario */
+.form-container {
+    width: 360px;
+    margin: 70px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0px 4px 15px #00000040;
+    border-top: 5px solid #e84118; /* rojo */
+}
+
+/* Título */
+h1 {
+    text-align: center;
+    margin-bottom: 22px;
+    color: #0a3d62; /* azul oscuro */
+    font-weight: 800;
+}
+
+/* Labels */
+label {
+    display: block;
+    margin-top: 12px;
+    font-size: 15px;
+    color: #2d3436;
+}
+
+/* Inputs y selects */
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    background: #f7f7f7;
+    font-size: 14px;
+    outline: none;
+}
+
+/* Efecto focus en inputs */
+input:focus,
+select:focus {
+    border-color: #e84118; /* rojo */
+    box-shadow: 0 0 6px #e8411850;
+}
+
+/* Botón principal */
+button {
+    width: 100%;
+    padding: 12px;
+    background: #e84118; /* rojo fuerte */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    margin-top: 22px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+/* Hover del botón */
+button:hover {
+    background: #c23616;
+}
+
+/* Enlace abajo del formulario */
+.link-btn {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.link-btn a {
+    text-decoration: none;
+    color: #0a3d62; /* azul */
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.link-btn a:hover {
+    text-decoration: underline;
+}
