@@ -113,4 +113,14 @@ Route::middleware(['auth'])->group(function () {
         [NotificacionController::class, 'poll'])
         ->name('notificaciones.poll');
 
+    // ----- VER DETALLE -----
+    Route::get('/solicitudes/detalle/{id}',
+        [SolicitudController::class, 'verDetalle']
+    )->name('solicitudes.detalle');
+
+    // ----- EXPORTAR PDF -----
+    Route::get('/solicitudes/pdf/{id}', 
+        [SolicitudController::class, 'exportarPDF'])
+        ->name('solicitudes.pdf');
+
 });

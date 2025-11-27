@@ -7,12 +7,14 @@ use App\Models\Notificacion;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class SolicitudController extends Controller
 {
-    // =============================
+    // =========================================================
     // LISTADO GENERAL
-    // =============================
+    // =========================================================
     public function index(Request $request)
     {
         $user   = Auth::user();
@@ -20,10 +22,12 @@ class SolicitudController extends Controller
 
         $query = Solicitud::query();
 
+        // Usuario normal solo ve las suyas
         if ($user->rol === 'usuario') {
             $query->where('user_id', $user->id);
         }
 
+        // Filtros
         if ($filtro === 'pendientes') {
             $query->whereIn('estado', [
                 'PENDIENTE_RRHH',
@@ -44,6 +48,7 @@ class SolicitudController extends Controller
 
         $solicitudes = $query->orderByDesc('created_at')->get();
 
+        // Contadores
         $contadores = [
             'todos' => Solicitud::count(),
             'pendientes' => Solicitud::whereIn('estado', [
@@ -57,16 +62,17 @@ class SolicitudController extends Controller
             'completadas' => Solicitud::where('estado', 'CULMINADO')->count(),
         ];
 
-        $nivelColor = function ($cantidad) {
-            if ($cantidad == 0)  return 'vacio';
-            if ($cantidad <= 5) return 'medio';
+        // Colores
+        $nivelColor = function($c) {
+            if ($c == 0) return 'vacio';
+            if ($c <= 5) return 'medio';
             return 'alto';
         };
 
         $intensidad = [
-            'todos'       => $nivelColor($contadores['todos']),
-            'pendientes'  => $nivelColor($contadores['pendientes']),
-            'rechazadas'  => $nivelColor($contadores['rechazadas']),
+            'todos' => $nivelColor($contadores['todos']),
+            'pendientes' => $nivelColor($contadores['pendientes']),
+            'rechazadas' => $nivelColor($contadores['rechazadas']),
             'completadas' => $nivelColor($contadores['completadas']),
         ];
 
@@ -75,9 +81,9 @@ class SolicitudController extends Controller
         ));
     }
 
-    // =============================
+    // =========================================================
     // GUARDAR FORMULARIO COMPLETO
-    // =============================
+    // =========================================================
     public function storeCompleto(Request $request)
     {
         $cb = fn($x) => $x ? 1 : 0;
@@ -90,12 +96,14 @@ class SolicitudController extends Controller
             'estado_auditoria' => 'Pendiente',
             'estado_ti'        => 'Pendiente',
             'estado_ti2'       => 'Pendiente',
+            'estado_sistemas'  => 'Pendiente',
 
             'nombre'          => $request->nombre,
             'departamento'    => $request->departamento,
             'puesto_funcion'  => $request->puesto,
             'empresa'         => $request->empresa,
 
+            // TAREAS
             'tarea1' => $request->tarea1,
             'tarea2' => $request->tarea2,
             'tarea3' => $request->tarea3,
@@ -127,39 +135,29 @@ class SolicitudController extends Controller
             'comentarios' => $request->comentarios,
         ]);
 
-        $this->notificarATodos($solicitud, 'Sistema', 'Enviada');
-
         return redirect()->route('solicitudes.index');
     }
 
-    // =============================
-    // NOTIFICACIONES
-    // =============================
-    private function notificarATodos($solicitud, $rol, $estado, $comentario = null)
-    {
-        $mensaje = "La solicitud de {$solicitud->nombre} fue {$estado} por {$rol}.";
-        if ($comentario) $mensaje .= " Motivo: {$comentario}";
-
-        $roles = ['usuario', 'rrhh', 'auditoria', 'ti', 'ciber', 'sistemas'];
-
-        foreach ($roles as $r) {
-            foreach (User::where('rol', $r)->get() as $u) {
-                Notificacion::create([
-                    'user_id' => $u->id,
-                    'mensaje' => $mensaje,
-                ]);
-            }
-        }
-    }
-
+    // =========================================================
+    // VALIDACIÓN DE ROLES
+    // =========================================================
     private function checkRole($rol)
     {
         if (Auth::user()->rol !== $rol) abort(403);
     }
 
-    // =============================
+    // =========================================================
+    // VER DETALLE (para usuarios)
+    // =========================================================
+    public function verDetalle($id)
+    {
+        $solicitud = Solicitud::findOrFail($id);
+        return view('solicitudes.detalle', compact('solicitud'));
+    }
+
+    // =========================================================
     // RRHH
-    // =============================
+    // =========================================================
     public function vistaRRHH($id)
     {
         $this->checkRole('rrhh');
@@ -173,11 +171,8 @@ class SolicitudController extends Controller
 
         $solicitud = Solicitud::findOrFail($id);
 
-        $solicitud->estado_rrhh    = $request->accion === 'aprobar' ? 'Aprobado' : 'Rechazado';
-        $solicitud->comentario_rrhh = $request->comentario;
-
-        $solicitud->estado =
-            $solicitud->estado_rrhh === 'Aprobado'
+        $solicitud->estado_rrhh = $request->accion === 'aprobar' ? 'Aprobado' : 'Rechazado';
+        $solicitud->estado = $solicitud->estado_rrhh === 'Aprobado'
             ? 'PENDIENTE_AUDITORIA'
             : 'RECHAZADO';
 
@@ -186,9 +181,9 @@ class SolicitudController extends Controller
         return redirect()->route('solicitudes.index');
     }
 
-    // =============================
+    // =========================================================
     // AUDITORÍA
-    // =============================
+    // =========================================================
     public function vistaAuditoria($id)
     {
         $this->checkRole('auditoria');
@@ -203,10 +198,7 @@ class SolicitudController extends Controller
         $solicitud = Solicitud::findOrFail($id);
 
         $solicitud->estado_auditoria = $request->accion === 'aprobar' ? 'Aprobado' : 'Rechazado';
-        $solicitud->comentario_auditoria = $request->comentario;
-
-        $solicitud->estado =
-            $solicitud->estado_auditoria === 'Aprobado'
+        $solicitud->estado = $solicitud->estado_auditoria === 'Aprobado'
             ? 'PENDIENTE_TI'
             : 'RECHAZADO';
 
@@ -215,9 +207,9 @@ class SolicitudController extends Controller
         return redirect()->route('solicitudes.index');
     }
 
-    // =============================
+    // =========================================================
     // TI
-    // =============================
+    // =========================================================
     public function vistaTI($id)
     {
         $this->checkRole('ti');
@@ -232,10 +224,7 @@ class SolicitudController extends Controller
         $solicitud = Solicitud::findOrFail($id);
 
         $solicitud->estado_ti = $request->accion === 'aprobar' ? 'Aprobado' : 'Rechazado';
-        $solicitud->comentario_ti = $request->comentario;
-
-        $solicitud->estado =
-            $solicitud->estado_ti === 'Aprobado'
+        $solicitud->estado = $solicitud->estado_ti === 'Aprobado'
             ? 'PENDIENTE_TI2'
             : 'RECHAZADO';
 
@@ -244,9 +233,9 @@ class SolicitudController extends Controller
         return redirect()->route('solicitudes.index');
     }
 
-    // =============================
+    // =========================================================
     // TI2
-    // =============================
+    // =========================================================
     public function vistaTI2($id)
     {
         $this->checkRole('ciber');
@@ -262,41 +251,24 @@ class SolicitudController extends Controller
 
         $solicitud->instalacion_ti2 = $request->instalacion_ti2;
 
-        // si TI2 completa → pasa a sistemas
-        if ($request->instalacion_ti2 === 'Completada') {
-            $solicitud->estado = 'PENDIENTE_SISTEMAS';
-        } else {
-            $solicitud->estado = 'PENDING_TI2';
-        }
+        $solicitud->estado =
+            $request->instalacion_ti2 === 'Completada'
+            ? 'PENDIENTE_SISTEMAS'
+            : 'PENDIENTE_TI2';
 
         $solicitud->save();
 
         return redirect()->route('solicitudes.index');
     }
 
-    // =============================
-    // SISTEMAS (solo lo que corresponde)
-    // =============================
+    // =========================================================
+    // SISTEMAS
+    // =========================================================
     public function vistaSistemas($id)
     {
         $this->checkRole('sistemas');
 
         $solicitud = Solicitud::findOrFail($id);
-
-        // 🔥 VALIDAMOS QUE REALMENTE TENGA COSAS DE SISTEMAS
-        $esSistemas = (
-            $solicitud->internet_rrhh ||
-            $solicitud->sistema_cobranzas ||
-            $solicitud->gt_solutions ||
-            $solicitud->sdk ||
-            $solicitud->sap_business_one ||
-            $solicitud->sdk_acceso ||
-            $solicitud->sap_acceso ||
-            $solicitud->otros_sistemas
-        );
-
-        if (!$esSistemas) abort(403); // no debe poder ver
-
         return view('solicitudes.aprobar_sistemas', compact('solicitud'));
     }
 
@@ -308,14 +280,29 @@ class SolicitudController extends Controller
 
         $solicitud->instalacion_sistemas = $request->instalacion_sistemas;
 
-        if ($request->instalacion_sistemas === 'Completada') {
-            $solicitud->estado = 'CULMINADO';
-        } else {
-            $solicitud->estado = 'PENDIENTE_SISTEMAS';
-        }
+        $solicitud->estado =
+            $request->instalacion_sistemas === 'Completada'
+            ? 'CULMINADO'
+            : 'PENDIENTE_SISTEMAS';
 
         $solicitud->save();
 
         return redirect()->route('solicitudes.index');
     }
+        // =========================================================
+    // EXPORTAR PDF (DETALLE)
+    // =========================================================
+    public function exportarPDF($id)
+    {
+        $solicitud = Solicitud::findOrFail($id);
+
+        // Generar PDF usando la vista solicitudes/pdf.blade.php
+        $pdf = Pdf::loadView('solicitudes.pdf', compact('solicitud'))
+                  ->setPaper('A4', 'portrait');
+
+        // Descargar archivo
+        return $pdf->download('Solicitud_'.$solicitud->id.'.pdf');
+    }
 }
+
+

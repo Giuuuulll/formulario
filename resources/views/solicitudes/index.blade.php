@@ -77,29 +77,25 @@
             </td>
 
             <td>
-    {{ $s->created_at->format('d/m/Y H:i') }}
+                {{ $s->created_at->format('d/m/Y H:i') }} —
+                @php
+                    $diff = $s->created_at->diffInMinutes(now());
 
-    — 
+                    if ($diff < 1) {
+                        $ago = "Hace unos segundos";
+                    } elseif ($diff < 60) {
+                        $ago = "Hace {$diff} min";
+                    } elseif ($diff < 1440) {
+                        $hours = floor($diff / 60);
+                        $ago = "Hace {$hours} " . ($hours == 1 ? 'hora' : 'horas');
+                    } else {
+                        $days = floor($diff / 1440);
+                        $ago = "Hace {$days} " . ($days == 1 ? 'día' : 'días');
+                    }
+                @endphp
 
-    @php
-        $diff = $s->created_at->diffInMinutes(now());
-
-        if ($diff < 1) {
-            $ago = "Hace unos segundos";
-        } elseif ($diff < 60) {
-            $ago = "Hace {$diff} min";
-        } elseif ($diff < 1440) {
-            $hours = floor($diff / 60);
-            $ago = "Hace {$hours} " . ($hours == 1 ? 'hora' : 'horas');
-        } else {
-            $days = floor($diff / 1440);
-            $ago = "Hace {$days} " . ($days == 1 ? 'día' : 'días');
-        }
-    @endphp
-
-    <span class="text-muted">{{ $ago }}</span>
-</td>
-
+                <span class="text-muted">{{ $ago }}</span>
+            </td>
 
             <td>
 
@@ -143,13 +139,11 @@
                     </a>
                 @endif
 
-                {{-- Usuario normal --}}
-                @if(auth()->user()->rol === 'usuario')
-                    <a href="{{ route('solicitudes.vistaRRHH', $s->id) }}"
-                       class="btn btn-sm btn-secondary">
-                        Ver detalle
-                    </a>
-                @endif
+                {{-- BOTÓN UNIVERSAL DE DETALLE PARA TODOS --}}
+                <a href="{{ route('solicitudes.detalle', $s->id) }}"
+                   class="btn btn-sm btn-dark mt-1">
+                    Ver detalle
+                </a>
 
             </td>
 
