@@ -12,23 +12,21 @@
 @include('solicitudes.partes.comentarios_usuario')
 
 
-<!-- ================================
-      FORMULARIO PRINCIPAL
-================================ -->
+
 <form id="formAprobacion" method="POST" action="{{ route('solicitudes.aprobarRRHH', $solicitud->id) }}">
     @csrf
 
-    <!-- Campo oculto donde JS pondrá el comentario -->
+    
     <textarea id="comentarioInput" name="comentario" class="d-none"></textarea>
 
     <div class="mt-4 d-flex gap-3">
 
-        <!-- APROBAR -->
+        
         <button type="button" class="btn btn-success" onclick="aprobar()">
             Aprobar
         </button>
 
-        <!-- RECHAZAR (abre el modal) -->
+        
         <button type="button" class="btn btn-danger" onclick="mostrarModal()">
             Rechazar
         </button>
@@ -38,9 +36,7 @@
 
 
 
-<!-- ================================
-      MODAL DE COMENTARIO
-================================ -->
+
 <div class="modal fade" id="modalComentario" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -77,9 +73,7 @@
 
 
 
-<!-- ================================
-      SCRIPTS JS
-================================ -->
+
 <script>
 
 function aprobar() {

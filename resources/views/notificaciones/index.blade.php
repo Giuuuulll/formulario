@@ -4,7 +4,7 @@
 
 <h2 class="mb-4">Notificaciones</h2>
 
-<!-- FILTROS -->
+
 <form method="GET" class="mb-4 d-flex gap-2">
 
     <select name="filtro" class="form-select form-select-sm" style="max-width:180px;">

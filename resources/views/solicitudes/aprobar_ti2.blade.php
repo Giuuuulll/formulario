@@ -13,9 +13,7 @@
 {{-- Tareas --}}
 @include('solicitudes.partes.tareas')
 
-<!-- =========================================
-     TI2 — SOLO EQUIPOS
-========================================= -->
+
 <div class="card p-3 mb-3 shadow-sm">
     <h5 class="mb-3">Equipos solicitados</h5>
 
@@ -34,9 +32,7 @@
     </ul>
 </div>
 
-<!-- =========================================
-     BOTONES TI2
-========================================= -->
+
 <div class="card mt-4 shadow-sm">
     <div class="card-body">
         <h5 class="mb-3">Estado de instalación (TI2)</h5>

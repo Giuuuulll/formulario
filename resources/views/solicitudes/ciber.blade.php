@@ -4,7 +4,7 @@
 <div class="container">
     <h2 class="mb-4">Aprobación Ciberseguridad (Final)</h2>
 
-    <!-- Sección RRHH -->
+    
     <div class="card mb-4">
         <div class="card-header">Tareas asignadas (RRHH)</div>
         <div class="card-body">
@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <!-- Sección TI -->
+    
     <div class="card mb-4">
         <div class="card-header">Herramientas informáticas (TI)</div>
         <div class="card-body">
@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <!-- Sección Gerencia TI -->
+    
     <div class="card mb-4">
         <div class="card-header">Equipos y accesos (Gerencia TI)</div>
         <div class="card-body">
@@ -53,7 +53,7 @@
         </div>
     </div>
 
-    <!-- Botones finales -->
+    
     <form method="POST" action="{{ route('solicitudes.ciber.aprobar', $solicitud->id) }}">
         @csrf
 

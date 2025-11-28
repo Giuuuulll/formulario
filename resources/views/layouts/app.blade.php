@@ -6,16 +6,14 @@
 
     <title>Sistema de Solicitudes</title>
 
-    <!-- BOOTSTRAP -->
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <style>
         body { background:#f6f8fb; }
 
-        /* ===============================
-           PILLS DE FILTROS
-        =============================== */
+        
         .filtro-pill {
             padding: 8px 18px;
             border-radius: 40px;
@@ -37,9 +35,7 @@
         .filtro-medio { background:#bfdbfe; color:#1e3a8a; }
         .filtro-alto { background:#1e40af; color:white; }
 
-        /* ===============================
-           SIDEBAR
-        =============================== */
+        
         .sidebar {
             position: fixed;
             top: 0; left: 0;
@@ -56,9 +52,7 @@
             color:#fff;
         }
 
-        /* ===============================
-           NOTIFICACIONES DROPDOWN
-        =============================== */
+        
         .noti-box {
             background:#1f2937;
             border:1px solid #374151;
@@ -73,9 +67,7 @@
         }
         .noti-item:last-child { border-bottom:none; }
 
-        /* ===============================
-           CONTENIDO
-        =============================== */
+        
         .content {
             margin-left:240px;
             padding:24px;
@@ -87,7 +79,7 @@
 
 <body>
 
-    <!-- SIDEBAR -->
+    
     <div class="sidebar">
 
         <div class="d-flex align-items-center gap-2 mb-3">
@@ -122,7 +114,7 @@
                             ->get();
             @endphp
 
-            <!-- NOTIFICACIONES -->
+            
             <div class="nav-link px-2 py-1 rounded position-relative">
 
                 <div onclick="toggleNoti()" class="d-flex justify-content-between align-items-center" style="cursor:pointer;">
@@ -171,16 +163,14 @@
 
 
 
-    <!-- CONTENIDO -->
+    
     <div class="content">
         @yield('content')
     </div>
 
 
 
-<!-- =====================
-     JS GENERAL
-===================== -->
+
 
 <script>
 function toggleNoti() {
@@ -224,7 +214,7 @@ setInterval(() => {
 }, 4000);
 </script>
 
-<!-- BOOTSTRAP JS (para modales y dropdowns) -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 @stack('scripts')

@@ -12,9 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class SolicitudController extends Controller
 {
-    // =========================================================
-    // LISTADO GENERAL
-    // =========================================================
+    
     public function index(Request $request)
     {
         $user   = Auth::user();
@@ -22,12 +20,12 @@ class SolicitudController extends Controller
 
         $query = Solicitud::query();
 
-        // Usuario normal solo ve las suyas
+        
         if ($user->rol === 'usuario') {
             $query->where('user_id', $user->id);
         }
 
-        // Filtros
+        
         if ($filtro === 'pendientes') {
             $query->whereIn('estado', [
                 'PENDIENTE_RRHH',
@@ -48,7 +46,7 @@ class SolicitudController extends Controller
 
         $solicitudes = $query->orderByDesc('created_at')->get();
 
-        // Contadores
+        
         $contadores = [
             'todos' => Solicitud::count(),
             'pendientes' => Solicitud::whereIn('estado', [
@@ -62,7 +60,7 @@ class SolicitudController extends Controller
             'completadas' => Solicitud::where('estado', 'CULMINADO')->count(),
         ];
 
-        // Colores
+        
         $nivelColor = function($c) {
             if ($c == 0) return 'vacio';
             if ($c <= 5) return 'medio';
@@ -81,9 +79,7 @@ class SolicitudController extends Controller
         ));
     }
 
-    // =========================================================
-    // GUARDAR FORMULARIO COMPLETO
-    // =========================================================
+    
     public function storeCompleto(Request $request)
     {
         $cb = fn($x) => $x ? 1 : 0;
@@ -103,14 +99,14 @@ class SolicitudController extends Controller
             'puesto_funcion'  => $request->puesto,
             'empresa'         => $request->empresa,
 
-            // TAREAS
+            
             'tarea1' => $request->tarea1,
             'tarea2' => $request->tarea2,
             'tarea3' => $request->tarea3,
             'tarea4' => $request->tarea4,
             'tarea5' => $request->tarea5,
 
-            // SISTEMAS
+            
             'internet_rrhh'     => $cb($request->internet_rrhh),
             'sistema_cobranzas' => $cb($request->sistema_cobranzas),
             'gt_solutions'      => $cb($request->gt_solutions),
@@ -121,7 +117,7 @@ class SolicitudController extends Controller
             'otros_sistemas'    => $cb($request->otros_sistemas),
             'otros_sistemas_texto' => $request->otros_sistemas_texto,
 
-            // TI2
+           
             'pc_notebook'        => $cb($request->pc_notebook),
             'tablet'             => $cb($request->tablet),
             'impresora_scanner'  => $cb($request->impresora_scanner),
@@ -138,26 +134,20 @@ class SolicitudController extends Controller
         return redirect()->route('solicitudes.index');
     }
 
-    // =========================================================
-    // VALIDACIÓN DE ROLES
-    // =========================================================
+    
     private function checkRole($rol)
     {
         if (Auth::user()->rol !== $rol) abort(403);
     }
 
-    // =========================================================
-    // VER DETALLE (para usuarios)
-    // =========================================================
+   
     public function verDetalle($id)
     {
         $solicitud = Solicitud::findOrFail($id);
         return view('solicitudes.detalle', compact('solicitud'));
     }
 
-    // =========================================================
-    // RRHH
-    // =========================================================
+   
     public function vistaRRHH($id)
     {
         $this->checkRole('rrhh');
@@ -181,9 +171,7 @@ class SolicitudController extends Controller
         return redirect()->route('solicitudes.index');
     }
 
-    // =========================================================
-    // AUDITORÍA
-    // =========================================================
+    
     public function vistaAuditoria($id)
     {
         $this->checkRole('auditoria');
@@ -207,9 +195,7 @@ class SolicitudController extends Controller
         return redirect()->route('solicitudes.index');
     }
 
-    // =========================================================
-    // TI
-    // =========================================================
+    
     public function vistaTI($id)
     {
         $this->checkRole('ti');
@@ -233,9 +219,7 @@ class SolicitudController extends Controller
         return redirect()->route('solicitudes.index');
     }
 
-    // =========================================================
-    // TI2
-    // =========================================================
+    
     public function vistaTI2($id)
     {
         $this->checkRole('ciber');
@@ -261,9 +245,7 @@ class SolicitudController extends Controller
         return redirect()->route('solicitudes.index');
     }
 
-    // =========================================================
-    // SISTEMAS
-    // =========================================================
+    
     public function vistaSistemas($id)
     {
         $this->checkRole('sistemas');
@@ -289,18 +271,16 @@ class SolicitudController extends Controller
 
         return redirect()->route('solicitudes.index');
     }
-        // =========================================================
-    // EXPORTAR PDF (DETALLE)
-    // =========================================================
+       
     public function exportarPDF($id)
     {
         $solicitud = Solicitud::findOrFail($id);
 
-        // Generar PDF usando la vista solicitudes/pdf.blade.php
+        
         $pdf = Pdf::loadView('solicitudes.pdf', compact('solicitud'))
                   ->setPaper('A4', 'portrait');
 
-        // Descargar archivo
+        
         return $pdf->download('Solicitud_'.$solicitud->id.'.pdf');
     }
 }

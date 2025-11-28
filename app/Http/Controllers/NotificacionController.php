@@ -13,7 +13,7 @@ class NotificacionController extends Controller
         $query = Notificacion::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc');
 
-        // FILTROS
+        
         if ($request->filtro === 'nuevas') {
             $query->where('leido', 0);
         }
@@ -21,7 +21,7 @@ class NotificacionController extends Controller
             $query->where('leido', 1);
         }
 
-        // PAGINACIÓN
+        
         $notificaciones = $query->paginate(10);
 
         return view('notificaciones.index', compact('notificaciones'));
@@ -65,12 +65,12 @@ class NotificacionController extends Controller
 {
     $userId = Auth::id();
 
-    // Cantidad de notificaciones NO leídas
+    
     $noLeidas = Notificacion::where('user_id', $userId)
         ->where('leido', 0)
         ->count();
 
-    // Últimas 5 notificaciones
+    
     $ultimas = Notificacion::where('user_id', $userId)
         ->orderBy('created_at', 'desc')
         ->take(5)

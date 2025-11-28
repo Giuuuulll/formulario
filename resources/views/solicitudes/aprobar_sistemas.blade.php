@@ -13,9 +13,7 @@
 {{-- Tareas del puesto --}}
 @include('solicitudes.partes.tareas')
 
-<!-- =========================================
-     SISTEMAS — SOLO ESTOS 8 CAMPOS
-========================================= -->
+
 <div class="card p-3 mb-3 shadow-sm">
     <h5 class="mb-3">Sistemas solicitados</h5>
 
@@ -54,9 +52,7 @@
     </ul>
 </div>
 
-<!-- =========================================
-     BOTONES DE SISTEMAS
-========================================= -->
+
 <div class="card mt-4 shadow-sm">
     <div class="card-body">
         <h5 class="mb-3">Estado de instalación (Sistemas)</h5>

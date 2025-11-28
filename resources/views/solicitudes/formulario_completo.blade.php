@@ -8,9 +8,7 @@
     @csrf
 
 
-    <!-- ========================================================= -->
-    <!-- INFORMACIÓN BÁSICA DEL EMPLEADO (EDITABLE) -->
-    <!-- ========================================================= -->
+    
     <div class="card mb-4">
         <div class="card-header fw-bold">Información del Empleado</div>
 
@@ -44,9 +42,8 @@
 
 
 
-    <!-- ========================================================= -->
-    <!-- A) DESCRIPCIÓN DEL PUESTO Y TAREAS -->
-    <!-- ========================================================= -->
+    
+   
     <div class="card mb-4">
         <div class="card-header fw-bold">Descripción del Puesto y Tareas</div>
 
@@ -72,9 +69,7 @@
 
 
 
-    <!-- ========================================================= -->
-    <!-- B) PROGRAMAS / SISTEMAS -->
-    <!-- ========================================================= -->
+   
     <div class="card mb-4">
         <div class="card-header fw-bold">Programas y Sistemas</div>
 
@@ -111,10 +106,7 @@
 
 
 
-    <!-- ========================================================= -->
-    <!-- C) HERRAMIENTAS INFORMÁTICAS REQUERIDAS -->
-    <!-- ========================================================= -->
-    <div class="card mb-4">
+  
         <div class="card-header fw-bold">Herramientas Informáticas Requeridas</div>
 
         <div class="card-body">
@@ -154,9 +146,7 @@
 
 
 
-    <!-- ========================================================= -->
-    <!-- D) COMENTARIOS FINALES -->
-    <!-- ========================================================= -->
+
     <div class="card mb-4">
         <div class="card-header fw-bold">Comentarios Adicionales</div>
         <div class="card-body">
@@ -166,7 +156,7 @@
 
 
 
-    <!-- BOTÓN -->
+>
     <div class="text-end">
         <button type="submit" class="btn btn-primary px-4">
             Enviar solicitud completa

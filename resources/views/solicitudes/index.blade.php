@@ -4,9 +4,7 @@
 
 <h2 class="mb-4">Solicitudes</h2>
 
-<!-- ===========================
-     FILTROS
-=========================== -->
+
 <div class="d-flex flex-wrap gap-2 mb-4">
 
     <a href="{{ route('solicitudes.index', ['filtro' => 'todos']) }}"
@@ -31,9 +29,7 @@
 
 </div>
 
-<!-- ===========================
-     TABLA
-=========================== -->
+
 
 @if($solicitudes->count())
 
