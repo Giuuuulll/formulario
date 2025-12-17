@@ -15,112 +15,113 @@ Route::get('/', function () {
 // =============================================
 // LOGIN / REGISTER
 // =============================================
-Route::get('/login', function () { 
-    return view('auth.login'); 
+Route::get('/login', function () {
+    return view('auth.login');
 })->name('login');
 
-Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+Route::post('/login', [AuthController::class, 'login'])
+    ->name('login.submit');
 
-Route::get('/register', function () { 
-    return view('auth.register'); 
+Route::get('/register', function () {
+    return view('auth.register');
 })->name('register');
 
-Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
+Route::post('/register', [AuthController::class, 'register'])
+    ->name('register.submit');
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->name('logout');
 
 // =============================================
 // RUTAS PROTEGIDAS
 // =============================================
 Route::middleware(['auth'])->group(function () {
 
+    // =========================================
+    // SOLICITUDES
+    // =========================================
+
     // LISTADO
     Route::get('/solicitudes', [SolicitudController::class, 'index'])
         ->name('solicitudes.index');
 
-    // CREAR
+    // CREAR (VISTA)
     Route::get('/solicitudes/crear', function () {
         return view('solicitudes.formulario_completo');
     })->name('solicitudes.crear');
 
-    Route::post('/solicitudes/store-completo',
-        [SolicitudController::class, 'storeCompleto']
-    )->name('solicitudes.storeCompleto');
+    // GUARDAR
+    Route::post('/solicitudes/store-completo', [SolicitudController::class, 'storeCompleto'])
+        ->name('solicitudes.storeCompleto');
 
     // ----- RRHH -----
-    Route::get('/solicitudes/rrhh/{id}', 
-        [SolicitudController::class, 'vistaRRHH']
-    )->name('solicitudes.vistaRRHH');
+    Route::get('/solicitudes/rrhh/{id}', [SolicitudController::class, 'vistaRRHH'])
+        ->name('solicitudes.vistaRRHH');
 
-    Route::post('/solicitudes/rrhh/{id}', 
-        [SolicitudController::class, 'aprobarRRHH']
-    )->name('solicitudes.aprobarRRHH');
+    Route::post('/solicitudes/rrhh/{id}', [SolicitudController::class, 'aprobarRRHH'])
+        ->name('solicitudes.aprobarRRHH');
 
     // ----- AUDITORÍA -----
-    Route::get('/solicitudes/auditoria/{id}', 
-        [SolicitudController::class, 'vistaAuditoria']
-    )->name('solicitudes.vistaAuditoria');
+    Route::get('/solicitudes/auditoria/{id}', [SolicitudController::class, 'vistaAuditoria'])
+        ->name('solicitudes.vistaAuditoria');
 
-    Route::post('/solicitudes/auditoria/{id}', 
-        [SolicitudController::class, 'aprobarAuditoria']
-    )->name('solicitudes.aprobarAuditoria');
+    Route::post('/solicitudes/auditoria/{id}', [SolicitudController::class, 'aprobarAuditoria'])
+        ->name('solicitudes.aprobarAuditoria');
 
     // ----- TI -----
-    Route::get('/solicitudes/ti/{id}', 
-        [SolicitudController::class, 'vistaTI']
-    )->name('solicitudes.vistaTI');
+    Route::get('/solicitudes/ti/{id}', [SolicitudController::class, 'vistaTI'])
+        ->name('solicitudes.vistaTI');
 
-    Route::post('/solicitudes/ti/{id}', 
-        [SolicitudController::class, 'aprobarTI'])
+    Route::post('/solicitudes/ti/{id}', [SolicitudController::class, 'aprobarTI'])
         ->name('solicitudes.aprobarTI');
 
     // ----- TI2 -----
-    Route::get('/solicitudes/ti2/{id}', 
-        [SolicitudController::class, 'vistaTI2']
-    )->name('solicitudes.vistaTI2');
+    Route::get('/solicitudes/ti2/{id}', [SolicitudController::class, 'vistaTI2'])
+        ->name('solicitudes.vistaTI2');
 
-    Route::post('/solicitudes/ti2/instalar/{id}', 
-        [SolicitudController::class, 'guardarInstalacionTI2'])
+    Route::post('/solicitudes/ti2/instalar/{id}', [SolicitudController::class, 'guardarInstalacionTI2'])
         ->name('solicitudes.guardarInstalacionTI2');
 
     // ----- SISTEMAS -----
-    Route::get('/solicitudes/sistemas/{id}', 
-        [SolicitudController::class, 'vistaSistemas']
-    )->name('solicitudes.vistaSistemas');
+    Route::get('/solicitudes/sistemas/{id}', [SolicitudController::class, 'vistaSistemas'])
+        ->name('solicitudes.vistaSistemas');
 
-    Route::post('/solicitudes/sistemas/instalar/{id}', 
-        [SolicitudController::class, 'guardarInstalacionSistemas'])
+    Route::post('/solicitudes/sistemas/instalar/{id}', [SolicitudController::class, 'guardarInstalacionSistemas'])
         ->name('solicitudes.guardarInstalacionSistemas');
 
-    // ----- NOTIFICACIONES -----
-    Route::get('/notificaciones', 
-        [NotificacionController::class, 'index'])
-        ->name('notificaciones.index');
-
-    Route::post('/notificaciones/marcar-leido/{id}',
-        [NotificacionController::class, 'marcarLeido'])
-        ->name('notificaciones.leido');
-
-    Route::post('/notificaciones/leido-multiple',
-        [NotificacionController::class, 'marcarLeidoMultiple'])
-        ->name('notificaciones.leidoMultiple');
-
-    Route::post('/notificaciones/eliminar',
-        [NotificacionController::class, 'eliminarMultiples'])
-        ->name('notificaciones.eliminar');
-
-    Route::get('/notificaciones/poll',
-        [NotificacionController::class, 'poll'])
-        ->name('notificaciones.poll');
-
     // ----- VER DETALLE -----
-    Route::get('/solicitudes/detalle/{id}',
-        [SolicitudController::class, 'verDetalle']
-    )->name('solicitudes.detalle');
+    Route::get('/solicitudes/detalle/{id}', [SolicitudController::class, 'verDetalle'])
+        ->name('solicitudes.detalle');
 
     // ----- EXPORTAR PDF -----
-    Route::get('/solicitudes/pdf/{id}', 
-        [SolicitudController::class, 'exportarPDF'])
+    Route::get('/solicitudes/pdf/{id}', [SolicitudController::class, 'exportarPDF'])
         ->name('solicitudes.pdf');
 
+    // =========================================
+    // NOTIFICACIONES
+    // =========================================
+
+    // LISTADO
+    Route::get('/notificaciones', [NotificacionController::class, 'index'])
+        ->name('notificaciones.index');
+
+    // CREAR (STORE)
+    Route::post('/notificaciones', [NotificacionController::class, 'store'])
+        ->name('notificaciones.store');
+
+    // MARCAR UNA COMO LEÍDA
+    Route::post('/notificaciones/marcar-leido/{id}', [NotificacionController::class, 'marcarLeido'])
+        ->name('notificaciones.leido');
+
+    // MARCAR VARIAS COMO LEÍDAS
+    Route::post('/notificaciones/leido-multiple', [NotificacionController::class, 'marcarLeidoMultiple'])
+        ->name('notificaciones.leidoMultiple');
+
+    // ELIMINAR VARIAS
+    Route::post('/notificaciones/eliminar', [NotificacionController::class, 'eliminarMultiples'])
+        ->name('notificaciones.eliminar');
+
+    // POLL (AJAX)
+    Route::get('/notificaciones/poll', [NotificacionController::class, 'poll'])
+        ->name('notificaciones.poll');
 });

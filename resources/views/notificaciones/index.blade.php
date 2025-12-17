@@ -4,7 +4,6 @@
 
 <h2 class="mb-4">Notificaciones</h2>
 
-
 <form method="GET" class="mb-4 d-flex gap-2">
 
     <select name="filtro" class="form-select form-select-sm" style="max-width:180px;">
@@ -16,16 +15,19 @@
     <button class="btn btn-primary btn-sm px-3">Aplicar</button>
 </form>
 
-
-
 @if($notificaciones->count())
 
 <form action="{{ route('notificaciones.eliminar') }}" method="POST">
     @csrf
 
     <div class="d-flex gap-2 mb-4">
-        <button type="submit" class="btn btn-outline-danger btn-sm px-3">🗑️ Eliminar</button>
-        <button type="button" onclick="marcarLeidas()" class="btn btn-outline-primary btn-sm px-3">✔️ Marcar leídas</button>
+        <button type="submit" class="btn btn-outline-danger btn-sm px-3">
+            🗑️ Eliminar
+        </button>
+
+        <button type="button" onclick="marcarLeidas()" class="btn btn-outline-primary btn-sm px-3">
+            ✔️ Marcar leídas
+        </button>
     </div>
 
     <div class="list-group">
@@ -34,8 +36,8 @@
 
         @php
             $borderColor = $n->leido ? '#90A4AE' : '#1565C0';
-            $bgColor = $n->leido ? '#F5F5F5' : '#E3F2FD';
-            $icono = $n->leido ? '📨' : '🔔';
+            $bgColor     = $n->leido ? '#F5F5F5' : '#E3F2FD';
+            $icono       = $n->leido ? '📨' : '🔔';
         @endphp
 
         <div class="list-group-item mb-2 rounded shadow-sm"
@@ -54,10 +56,18 @@
                             {{ $icono }} {{ $n->mensaje }}
                         </div>
 
+                        {{-- 👇 COMENTARIO (SI EXISTE) --}}
+                        @if(!empty($n->comentario))
+                            <div class="mt-1 small" style="color:#37474F;">
+                                <strong>Comentario:</strong> {{ $n->comentario }}
+                            </div>
+                        @endif
+
                         <div class="small text-muted mt-1">
                             {{ $n->created_at->format('d/m/Y H:i') }}
                         </div>
                     </div>
+
                 </div>
 
                 <div>
@@ -73,7 +83,6 @@
 
         @endforeach
     </div>
-
 </form>
 
 <div class="mt-3">
@@ -81,13 +90,20 @@
 </div>
 
 @else
-<div class="alert alert-info">No tenés notificaciones.</div>
+<div class="alert alert-info">
+    No tenés notificaciones.
+</div>
 @endif
-
-
 
 <script>
 function marcarLeidas() {
+    let checkboxes = document.querySelectorAll('input[name="seleccion[]"]:checked');
+
+    if (checkboxes.length === 0) {
+        alert("Seleccioná al menos una notificación");
+        return;
+    }
+
     let form = document.createElement('form');
     form.method = 'POST';
     form.action = "{{ route('notificaciones.leidoMultiple') }}";
@@ -97,13 +113,6 @@ function marcarLeidas() {
     token.name = '_token';
     token.value = "{{ csrf_token() }}";
     form.appendChild(token);
-
-    let checkboxes = document.querySelectorAll('input[name="seleccion[]"]:checked');
-
-    if (checkboxes.length === 0) {
-        alert("Seleccioná al menos una notificación");
-        return;
-    }
 
     checkboxes.forEach(ch => {
         let input = document.createElement('input');
