@@ -21,10 +21,21 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Departamento</label>
-                <input type="text" name="departamento" class="form-control"
-                       value="{{ auth()->user()->departamento }}" required>
-            </div>
+    <label class="form-label">Departamento</label>
+    <select name="departamento" class="form-select" required>
+        <option value="">Seleccionar departamento</option>
+        <option value="Administración">Administración</option>
+        <option value="RRHH">RRHH</option>
+        <option value="Auditoría">Auditoría</option>
+        <option value="TI">TI</option>
+        <option value="TI2">TI2</option>
+        <option value="Sistemas">Sistemas</option>
+        <option value="Ventas">Ventas</option>
+        <option value="Compras">Compras</option>
+        <option value="Otro">Otro</option>
+    </select>
+</div>
+
 
             <div class="col-md-6">
     <label class="form-label">Puesto / Función</label>
