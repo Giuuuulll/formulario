@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\AuthController;
@@ -125,3 +126,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notificaciones/poll', [NotificacionController::class, 'poll'])
         ->name('notificaciones.poll');
 });
+

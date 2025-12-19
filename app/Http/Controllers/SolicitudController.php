@@ -8,6 +8,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NotificacionMail;
+
+
+
 
 class SolicitudController extends Controller
 {
@@ -58,7 +63,7 @@ class SolicitudController extends Controller
             'completadas' => Solicitud::where('estado', 'CULMINADO')->count(),
         ];
 
-        $nivelColor = function($c) {
+        $nivelColor = function ($c) {
             if ($c == 0) return 'vacio';
             if ($c <= 5) return 'medio';
             return 'alto';
@@ -72,7 +77,11 @@ class SolicitudController extends Controller
         ];
 
         return view('solicitudes.index', compact(
-            'solicitudes', 'user', 'filtro', 'contadores', 'intensidad'
+            'solicitudes',
+            'user',
+            'filtro',
+            'contadores',
+            'intensidad'
         ));
     }
 
@@ -81,7 +90,7 @@ class SolicitudController extends Controller
     // =============================
     public function storeCompleto(Request $request)
     {
-        $cb = fn($x) => $x ? 1 : 0;
+        $cb = fn ($x) => $x ? 1 : 0;
 
         $solicitud = Solicitud::create([
             'user_id' => auth()->id(),
@@ -93,10 +102,10 @@ class SolicitudController extends Controller
             'estado_ti2'       => 'Pendiente',
             'estado_sistemas'  => 'Pendiente',
 
-            'nombre'          => $request->nombre,
-            'departamento'    => $request->departamento,
-            'puesto_funcion'  => $request->puesto,
-            'empresa'         => $request->empresa,
+            'nombre'         => $request->nombre,
+            'departamento'   => $request->departamento,
+            'puesto_funcion' => $request->puesto,
+            'empresa'        => $request->empresa,
 
             'tarea1' => $request->tarea1,
             'tarea2' => $request->tarea2,
@@ -104,14 +113,14 @@ class SolicitudController extends Controller
             'tarea4' => $request->tarea4,
             'tarea5' => $request->tarea5,
 
-            'internet_rrhh'     => $cb($request->internet_rrhh),
-            'sistema_cobranzas' => $cb($request->sistema_cobranzas),
-            'gt_solutions'      => $cb($request->gt_solutions),
-            'sdk'               => $cb($request->sdk),
-            'sap_business_one'  => $cb($request->sap_business_one),
-            'sdk_acceso'        => $cb($request->sdk_acceso),
-            'sap_acceso'        => $cb($request->sap_acceso),
-            'otros_sistemas'    => $cb($request->otros_sistemas),
+            'internet_rrhh'        => $cb($request->internet_rrhh),
+            'sistema_cobranzas'    => $cb($request->sistema_cobranzas),
+            'gt_solutions'         => $cb($request->gt_solutions),
+            'sdk'                  => $cb($request->sdk),
+            'sap_business_one'     => $cb($request->sap_business_one),
+            'sdk_acceso'           => $cb($request->sdk_acceso),
+            'sap_acceso'           => $cb($request->sap_acceso),
+            'otros_sistemas'       => $cb($request->otros_sistemas),
             'otros_sistemas_texto' => $request->otros_sistemas_texto,
 
             'pc_notebook'         => $cb($request->pc_notebook),
@@ -126,6 +135,9 @@ class SolicitudController extends Controller
 
             'comentarios' => $request->comentarios,
         ]);
+
+        // (opcional) si querés avisar a todos cuando se crea la solicitud:
+        // $this->notificarATodos($solicitud, 'Nueva solicitud creada #' . $solicitud->id, null);
 
         return redirect()->route('solicitudes.index');
     }
@@ -143,18 +155,24 @@ class SolicitudController extends Controller
     // =============================
     private function notificarATodos(Solicitud $solicitud, string $mensaje, ?string $comentario = null): void
     {
-        // dueñx de la solicitud
-        $destinatarios = [$solicitud->user_id];
+        $destinatarios = [];
 
-        // roles que querés notificar
+        // ✅ Usuario dueño
+        if (!empty($solicitud->user_id)) {
+            $destinatarios[] = (int) $solicitud->user_id;
+        }
+
+        // ✅ Roles
         $roles = ['rrhh', 'auditoria', 'ti', 'ciber', 'sistemas'];
 
         $idsRoles = User::whereIn('rol', $roles)->pluck('id')->toArray();
 
-        // unir y quitar repetidos
+        // ✅ unir + quitar repetidos
         $destinatarios = array_values(array_unique(array_merge($destinatarios, $idsRoles)));
 
         foreach ($destinatarios as $userId) {
+
+            // 1) Guardar en BD
             Notificacion::create([
                 'user_id'    => $userId,
                 'autor_id'   => Auth::id(),
@@ -162,6 +180,23 @@ class SolicitudController extends Controller
                 'comentario' => $comentario ?: null, // opcional
                 'leido'      => 0,
             ]);
+
+            // 2) Mandar mail (opcional, pero lo dejo listo)
+            // Si todavía no tenés NotificacionMail, comentá este bloque try/catch.
+            try {
+                $u = User::find($userId);
+                if ($u && !empty($u->email)) {
+                    Mail::to($u->email)->send(
+                        new NotificacionMail(
+                            $mensaje,
+                            $comentario ?: null,
+                            Auth::user()->name ?? 'Intranet Garden'
+                        )
+                    );
+                }
+            } catch (\Throwable $e) {
+                // no cortamos el flujo si el mail falla
+            }
         }
     }
 
@@ -195,27 +230,19 @@ class SolicitudController extends Controller
 
         if ($request->accion === 'rechazar') {
             $solicitud->estado_rrhh = 'Rechazado';
-            $solicitud->estado = 'RECHAZADO';
+            $solicitud->estado      = 'RECHAZADO';
             $solicitud->save();
 
-            $this->notificarATodos(
-                $solicitud,
-                'RRHH rechazó la solicitud #' . $solicitud->id,
-                $request->comentario
-            );
+            $this->notificarATodos($solicitud, 'RRHH rechazó la solicitud #' . $solicitud->id, $request->comentario);
 
             return redirect()->route('solicitudes.index');
         }
 
         $solicitud->estado_rrhh = 'Aprobado';
-        $solicitud->estado = 'PENDIENTE_AUDITORIA';
+        $solicitud->estado      = 'PENDIENTE_AUDITORIA';
         $solicitud->save();
 
-        $this->notificarATodos(
-            $solicitud,
-            'RRHH aprobó la solicitud #' . $solicitud->id,
-            $request->comentario
-        );
+        $this->notificarATodos($solicitud, 'RRHH aprobó la solicitud #' . $solicitud->id, $request->comentario);
 
         return redirect()->route('solicitudes.index');
     }
@@ -241,27 +268,19 @@ class SolicitudController extends Controller
 
         if ($request->accion === 'rechazar') {
             $solicitud->estado_auditoria = 'Rechazado';
-            $solicitud->estado = 'RECHAZADO';
+            $solicitud->estado           = 'RECHAZADO';
             $solicitud->save();
 
-            $this->notificarATodos(
-                $solicitud,
-                'Auditoría rechazó la solicitud #' . $solicitud->id,
-                $request->comentario
-            );
+            $this->notificarATodos($solicitud, 'Auditoría rechazó la solicitud #' . $solicitud->id, $request->comentario);
 
             return redirect()->route('solicitudes.index');
         }
 
         $solicitud->estado_auditoria = 'Aprobado';
-        $solicitud->estado = 'PENDIENTE_TI';
+        $solicitud->estado           = 'PENDIENTE_TI';
         $solicitud->save();
 
-        $this->notificarATodos(
-            $solicitud,
-            'Auditoría aprobó la solicitud #' . $solicitud->id,
-            $request->comentario
-        );
+        $this->notificarATodos($solicitud, 'Auditoría aprobó la solicitud #' . $solicitud->id, $request->comentario);
 
         return redirect()->route('solicitudes.index');
     }
@@ -287,33 +306,25 @@ class SolicitudController extends Controller
 
         if ($request->accion === 'rechazar') {
             $solicitud->estado_ti = 'Rechazado';
-            $solicitud->estado = 'RECHAZADO';
+            $solicitud->estado    = 'RECHAZADO';
             $solicitud->save();
 
-            $this->notificarATodos(
-                $solicitud,
-                'TI rechazó la solicitud #' . $solicitud->id,
-                $request->comentario
-            );
+            $this->notificarATodos($solicitud, 'TI rechazó la solicitud #' . $solicitud->id, $request->comentario);
 
             return redirect()->route('solicitudes.index');
         }
 
         $solicitud->estado_ti = 'Aprobado';
-        $solicitud->estado = 'PENDIENTE_TI2';
+        $solicitud->estado    = 'PENDIENTE_TI2';
         $solicitud->save();
 
-        $this->notificarATodos(
-            $solicitud,
-            'TI aprobó la solicitud #' . $solicitud->id,
-            $request->comentario
-        );
+        $this->notificarATodos($solicitud, 'TI aprobó la solicitud #' . $solicitud->id, $request->comentario);
 
         return redirect()->route('solicitudes.index');
     }
 
     // =============================
-    // TI2
+    // TI2 (CIBER)
     // =============================
     public function vistaTI2($id)
     {
@@ -336,7 +347,6 @@ class SolicitudController extends Controller
 
         $solicitud->save();
 
-        // Notificar a todos (opcional, si querés también en TI2)
         $this->notificarATodos(
             $solicitud,
             'TI2 actualizó instalación: ' . $solicitud->instalacion_ti2 . ' (Solicitud #' . $solicitud->id . ')',
@@ -370,7 +380,6 @@ class SolicitudController extends Controller
 
         $solicitud->save();
 
-        // Notificar a todos (opcional, si querés también en Sistemas)
         $this->notificarATodos(
             $solicitud,
             'Sistemas actualizó instalación: ' . $solicitud->instalacion_sistemas . ' (Solicitud #' . $solicitud->id . ')',
@@ -390,6 +399,6 @@ class SolicitudController extends Controller
         $pdf = Pdf::loadView('solicitudes.pdf', compact('solicitud'))
             ->setPaper('A4', 'portrait');
 
-        return $pdf->download('Solicitud_'.$solicitud->id.'.pdf');
+        return $pdf->download('Solicitud_' . $solicitud->id . '.pdf');
     }
 }

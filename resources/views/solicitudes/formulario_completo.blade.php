@@ -27,15 +27,32 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Puesto / Función</label>
-                <input type="text" name="puesto" class="form-control"
-                       value="{{ auth()->user()->puesto }}" required>
-            </div>
+    <label class="form-label">Puesto / Función</label>
+    <select name="puesto" class="form-select" required>
+        <option value="">Seleccionar puesto</option>
+        <option value="Administración">Administración</option>
+        <option value="RRHH">RRHH</option>
+        <option value="Auditoría">Auditoría</option>
+        <option value="TI">TI</option>
+        <option value="Ciberseguridad">Ciberseguridad</option>
+        <option value="Sistemas">Sistemas</option>
+        <option value="Ventas">Ventas</option>
+        <option value="Otro">Otro</option>
+    </select>
+</div>
+
 
             <div class="col-md-6">
-                <label class="form-label">Empresa</label>
-                <input type="text" name="empresa" class="form-control" placeholder="Ej: Garden, MPY, Cuevas…" required>
-            </div>
+    <label class="form-label">Empresa</label>
+    <select name="empresa" class="form-select" required>
+        <option value="">Seleccionar empresa</option>
+        <option value="Garden">Garden</option>
+        <option value="Cuevas">Cuevas</option>
+        <option value="MPY">MPY</option>
+        <option value="Otra">Otra</option>
+    </select>
+</div>
+
 
         </div>
     </div>
